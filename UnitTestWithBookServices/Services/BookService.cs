@@ -19,7 +19,10 @@ namespace UnitTestWithBookServices.API.Services
             _books.Add(book);
             return book;
         }
-
+        public Book? GetBookById(int Id)
+        {
+            return _books.FirstOrDefault(x => x.Id == Id);
+        }
         public IEnumerable<Book> GetAllBooks() => _books;
     }
 }
