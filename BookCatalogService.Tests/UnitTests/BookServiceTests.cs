@@ -33,5 +33,20 @@ namespace BookCatalogService.Tests.UnitTests
             Assert.Equal(2, books.Count());
             
         }
+
+        [Fact]
+        public void GetBookById_ShouldReturnBook_WhenBookExists()
+        {
+            var service = new BookService();
+            var addedBook = service.AddBook(new Book { Author = "Author 1", Title = "Title 1" });
+
+            var result = service.GetBookById(addedBook.Id);
+            Assert.NotNull(result);
+            Assert.Equal(addedBook.Id, result.Id);
+            var result2 = service.GetBookById(999);
+            Assert.NotNull(result2);
+
+
+        }
     }
 }
