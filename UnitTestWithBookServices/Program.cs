@@ -1,10 +1,12 @@
+using UnitTestWithBookServices.API.Data;
 using UnitTestWithBookServices.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<IBookService, BookService>();
 
+builder.Services.AddScoped<IBookRepository, InMemoryBookRepository>();
+builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

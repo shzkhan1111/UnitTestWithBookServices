@@ -7,7 +7,9 @@ namespace UnitTestWithBookServices.API.Services
     /// </summary>
     public interface IBookService
     {
-        Book AddBook(Book book);
-        IEnumerable<Book> GetAllBooks();
+        Task<Book> AddBookAsync(Book book);
+        Task<IEnumerable<Book>> GetAllAsync();
+        Task<Book?> GetByIdAsync(int id);
     }
+
 }

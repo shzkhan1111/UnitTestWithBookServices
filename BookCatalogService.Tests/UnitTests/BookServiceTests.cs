@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnitTestWithBookServices.API.Data;
 using UnitTestWithBookServices.API.Models;
 using UnitTestWithBookServices.API.Services;
 using Xunit;
@@ -12,39 +14,26 @@ namespace BookCatalogService.Tests.UnitTests
     public class BookServiceTests
     {
         [Fact]
-        public void AddBook_ShouldAssignId_AndReturnBook()
+        public async Task AddBookIfNotExistsAsync_ShouldAddBook_WhenBookDoesNotExist()
         {
-            var service = new BookService();
-            var newBook = new Book { Author = string.Empty , Title = "eded"};
+            //mocking IRepo
+            var mockRepo = new Mock<IBookRepository>();
 
-            Assert.Throws<ArgumentException>(() => service.AddBook(newBook));
-        }
-        [Fact]
-        public void GetAllBooks_ShouldReturnAllAddedBooks()
-        {
-            var service = new BookService();
-            service.AddBook(new Book { Author = "Author 1", Title = "Title 1" });
-            service.AddBook(new Book { Author = "Author 2", Title = "Title 2" });
+            //setting up rules 
 
-            // Act
-            var books = service.GetAllBooks();
-
-            // Assert
-            Assert.Equal(2, books.Count());
             
-        }
+            mockRepo.Setup(r => r.ExistsByTitleAsync("Test Book"))
+                .ReturnsAsync(false);
+            //set up rules if ExistsByTitleAsync is called for "Test Book" return false
 
-        [Fact]
-        public void GetBookById_ShouldReturnBook_WhenBookExists()
-        {
-            var service = new BookService();
-            var addedBook = service.AddBook(new Book { Author = "Author 1", Title = "Title 1" });
+            //send the object to Book Service
+            var service = new BookService(mockRepo.Object);
+            var newBook = new Book { Title = "Test Book" };
 
-            var result = service.GetBookById(addedBook.Id);
-            Assert.NotNull(result);
-            Assert.Equal(addedBook.Id, result.Id);
-            var result2 = service.GetBookById(999);
-            Assert.NotNull(result2);
+            var result = await service.AddBookIfNotExistsAsync(newBook);
+
+            Assert.True(result);
+            mockRepo.Verify(r => r.AddAsync(It.IsAny<Book>()), Times.Once);
 
 
         }
