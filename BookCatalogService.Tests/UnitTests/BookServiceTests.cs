@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using FluentAssertions;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,23 +18,19 @@ namespace BookCatalogService.Tests.UnitTests
         public async Task AddBookIfNotExistsAsync_ShouldAddBook_WhenBookDoesNotExist()
         {
             //mocking IRepo
-            var mockRepo = new Mock<IBookRepository>();
+            var repoMock = new Mock<IBookRepository>();
+            var bookIn = new Book { Title = "Test Title", Author = "Author" };
 
             //setting up rules 
 
+
+            repoMock.Setup(r => r.ExistsByTitleAsync(bookIn.Title)).ReturnsAsync(true);
+
+            var svc = new BookService(repoMock.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => svc.AddBookAsync(bookIn));
             
-            mockRepo.Setup(r => r.ExistsByTitleAsync("Test Book"))
-                .ReturnsAsync(false);
-            //set up rules if ExistsByTitleAsync is called for "Test Book" return false
-
-            //send the object to Book Service
-            var service = new BookService(mockRepo.Object);
-            var newBook = new Book { Title = "Test Book" };
-
-            var result = await service.AddBookIfNotExistsAsync(newBook);
-
-            Assert.True(result);
-            mockRepo.Verify(r => r.AddAsync(It.IsAny<Book>()), Times.Once);
+            repoMock.Verify(r => r.AddAsync(It.IsAny<Book>()), Times.Never);
 
 
         }
